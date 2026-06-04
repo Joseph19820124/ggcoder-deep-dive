@@ -1,20 +1,36 @@
 ---
-title: "ggcoder Provider System — 9 LLMs, Video Input, Subscription OAuth, Quota Classifier"
-description: "How KenKaiii/gg-framework wires 9 LLM providers without SDK dependencies, including the three wire formats for video input (Gemini, Kimi, MiniMax M3) and the hard-vs-transient billing-quota classifier."
+title: "ggcoder Provider System — 9 LLMs, Video Input, Subscription OAuth via Identity Spoofing, Quota Classifier"
+description: "How KenKaiii/gg-framework wires 9 LLM providers — official Anthropic and OpenAI SDKs as transport, custom OAuth handling for subscription auth, and Claude Code identity spoofing to unlock Claude Pro/Max without API billing. Plus three video-input wire formats and the hard-vs-transient quota classifier."
 ---
 
 # Provider system & video input
 
 Window observed: 2026-06-02 → 2026-06-03 (after the video-input commit `bd5d60b`).
 
-## 9 LLM providers, no SDK dependencies
+> **Corrigendum (2026-06-04):** an earlier version of this document claimed gg-ai
+> shipped "no SDK dependencies." That was wrong. `packages/gg-ai/package.json`
+> depends on `@anthropic-ai/sdk@^0.94.0` and `openai@^6.34.0`. What gg-ai *does*
+> bypass is the **auth abstraction** inside those SDKs — see "Subscription OAuth"
+> below. This section has been rewritten to reflect what the source actually does.
 
-`packages/gg-ai/src/providers/` ships direct HTTP clients for these 9 providers. There are **no `@anthropic-ai/sdk`, `openai`, `@google/genai` SDK dependencies in production code** — Ken Kai writes the API calls directly with `fetch` and SSE parsers.
+## 9 LLM providers, two transport strategies
 
-| `--provider` flag | Backend | Auth modes supported |
-|-------------------|---------|---------------------|
-| `anthropic` | `api.anthropic.com` (API) + `claude.ai/v1/chat/completions` (subscription) | API key + OAuth (Claude Pro/Max) |
-| `openai` | `api.openai.com/v1` | API key |
+`packages/gg-ai/src/providers/` wires 9 providers, but the transport choice splits in two:
+
+- **Anthropic** and **OpenAI** use the **official vendor SDKs** (`@anthropic-ai/sdk@0.94.0` and `openai@6.34.0`) as the HTTP/SSE transport layer. ggcoder then bypasses the SDKs' auth abstractions to inject OAuth tokens directly.
+- **Gemini, Codex, GLM, Moonshot, MiniMax, DeepSeek, OpenRouter** are **hand-rolled** with `fetch` plus a shared SSE / JSON parser in `gg-ai/src/providers/utils/`. None of them have an official TypeScript SDK that fits ggcoder's needs (or in Codex's case, the endpoint is internal and unpublished).
+
+| `--provider` flag | Backend | Transport | Auth modes |
+|-------------------|---------|-----------|------------|
+| `anthropic` | `api.anthropic.com` | `@anthropic-ai/sdk` | API key + **OAuth (Claude Pro/Max) via Claude Code identity spoof** |
+| `openai` | `api.openai.com/v1` | `openai` SDK | API key |
+| `openai-codex` (via `--provider codex`) | `chatgpt.com/backend-api/codex/responses` | hand-rolled `fetch` | **OAuth subscription** (ChatGPT Plus/Pro/Team) — see [my standalone notes](https://github.com/Joseph19820124/codex-oauth-client) |
+| `gemini` | `cloudcode-pa.googleapis.com/v1internal:streamGenerateContent` (Code Assist) + `generativelanguage.googleapis.com` (AI Studio) | hand-rolled `fetch` | OAuth subscription (Code Assist) + API key (AI Studio) |
+| `glm` | Z.AI backend | hand-rolled `fetch` | API key + MCP tools (Z.AI has provider-specific MCP servers) |
+| `moonshot` | Moonshot platform (also serves Kimi K2.6) | hand-rolled `fetch` | API key |
+| `minimax` | MiniMax M3 — **rides Anthropic transport, see below** | `@anthropic-ai/sdk` (yes, really) | API key |
+| `deepseek` | DeepSeek platform | hand-rolled `fetch` | API key |
+| `openrouter` | Aggregator | hand-rolled `fetch` | API key (one key → 100+ models) |
 | `openai-codex` (via `--provider codex`) | `chatgpt.com/backend-api/codex/responses` | **OAuth subscription** (ChatGPT Plus/Pro/Team) — see [my standalone notes](https://github.com/Joseph19820124/codex-oauth-client) |
 | `gemini` | `cloudcode-pa.googleapis.com/v1internal:streamGenerateContent` (Code Assist) + `generativelanguage.googleapis.com` (AI Studio) | OAuth subscription (Code Assist) + API key (AI Studio) |
 | `glm` | Z.AI backend | API key + MCP tools (Z.AI has provider-specific MCP servers) |
@@ -46,7 +62,52 @@ Two paths that let a `$20/month` subscriber use Claude Pro or ChatGPT Plus witho
 
 - Auth file at `~/.kenkaiii/auth.json`
 - Browser-based PKCE flow (default) or device-code flow (headless servers)
-- The `anthropic` provider uses these tokens against Anthropic's subscription-bound endpoint when present, otherwise falls back to API key.
+- **Endpoint is still `api.anthropic.com`** — same host as API-key mode. The subscription is unlocked by the auth header and identity, not by hitting a different URL.
+
+The interesting part is what ggcoder does to make `api.anthropic.com` accept the OAuth token. In `gg-ai/src/providers/anthropic.ts`:
+
+```typescript
+const isOAuth = options.apiKey?.startsWith("sk-ant-oat");   // OAuth token prefix
+return new Anthropic({
+  ...(isOAuth
+    ? { apiKey: null, authToken: options.apiKey }           // Bearer-style auth
+    : { apiKey: options.apiKey }),                          // x-api-key style auth
+  ...(isOAuth
+    ? {
+        defaultHeaders: {
+          "user-agent": "claude-cli/2.1.75 (external, cli)",  // ← spoof Claude Code CLI
+          "x-app": "cli",
+        },
+      }
+    : {}),
+});
+```
+
+And two more pieces are mandatory when in OAuth mode:
+
+1. **System prompt prefix** — the first system block must be exactly
+   `"You are Claude Code, Anthropic's official CLI for Claude."`. ggcoder
+   prepends this when `isOAuth` is true, before any user-supplied system prompt.
+2. **Beta header** — the request must declare `claude-code-20250219,oauth-2025-04-20`
+   in the `anthropic-beta` list. ggcoder adds these only when `isOAuth`.
+
+Without all three (user-agent, system prompt prefix, beta header) Anthropic's
+OAuth edge rejects the call. This is identity spoofing: the request to
+`api.anthropic.com` must look indistinguishable from one made by the real
+Claude Code CLI binary, because that's the only client Anthropic intends to
+accept OAuth tokens from.
+
+**Implication:** this works today and is unsafe to depend on long-term. Anthropic
+can tighten any of the three checks (rotate the accepted user-agent string, change
+the required beta header, validate the system prompt content) and ggcoder users
+lose subscription access until the project ships a new spoof. By contrast, the
+official `claude-agent-sdk` route — `Python SDK → spawn claude CLI → api.anthropic.com`
+— is the path Anthropic actively supports and won't deliberately break.
+
+See also: [Joseph19820124/claude-sdk-subscription-demo](https://github.com/Joseph19820124/claude-sdk-subscription-demo)
+— my Python demo of the **official** subscription path via `claude-agent-sdk`.
+That repo and ggcoder's anthropic provider solve the same end goal (use Claude
+Pro instead of API billing) by completely different mechanisms.
 
 ### OpenAI Codex (ChatGPT Plus / Pro / Team)
 
