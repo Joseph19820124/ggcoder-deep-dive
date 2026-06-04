@@ -41,6 +41,7 @@ ggcoder is one of the most actively-developed open-source coding agents — aver
 | **[architecture.md](./architecture.md)** | The 14-package monorepo, recent UI re-architecture, the Goal system, tool surface, session model |
 | **[providers.md](./providers.md)** | 9 LLM providers, video input wire format per provider, hard/transient quota classification, MiniMax-on-Anthropic-transport curiosity |
 | **[vs-pi-vs-openab-agent.md](./vs-pi-vs-openab-agent.md)** | Positioning comparison: extension-first (Pi) vs batteries-included (ggcoder) vs ACP-fleet-worker (openab-agent). Includes footprint table and use-case matrix |
+| **[comparison-3-projects.md](./comparison-3-projects.md)** | Wider three-project comparison adding the process layer: Archon (workflow engine) vs openab (ACP transport + Discord bridge) vs gg-framework. Maintainership models, sprint themes, response to Claude Code Workflows, staying-power scoring |
 | **[engineering-notes.md](./engineering-notes.md)** | Ken Kai's commit velocity, prompting principles from Skool community video (2026-05-25), what got added and removed in the last 30 days, things to watch for |
 
 ## How to read these notes
