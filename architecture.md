@@ -1,3 +1,8 @@
+---
+title: "ggcoder Architecture — 14-Package Monorepo, Goal System, Tool Surface"
+description: "Inside KenKaiii/gg-framework: the TypeScript monorepo layout, the UI re-architecture of May 2026, the Goal system maturation, the 16-tool LLM surface, and what got added then removed."
+---
+
 # Architecture
 
 Window observed: 2026-05-25 → 2026-06-03 (ggcoder 4.3.217 → 4.3.243).

@@ -1,3 +1,8 @@
+---
+title: "ggcoder Deep Dive — Architecture, Providers, and Positioning Notes"
+description: "Independent investigation notes on KenKaiii/gg-framework (ggcoder) — the 14-package TypeScript monorepo, 9 LLM providers, video input, subscription OAuth, and comparison with openab, Pi, and Archon."
+---
+
 # ggcoder Deep Dive
 
 Personal investigation notes on [KenKaiii/gg-framework](https://github.com/KenKaiii/gg-framework) — the **ggcoder** coding-agent CLI and its surrounding packages (gg-boss, gg-voice, gg-ai, gg-editor, etc.).

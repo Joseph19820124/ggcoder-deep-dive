@@ -1,3 +1,8 @@
+---
+title: "ggcoder Provider System — 9 LLMs, Video Input, Subscription OAuth, Quota Classifier"
+description: "How KenKaiii/gg-framework wires 9 LLM providers without SDK dependencies, including the three wire formats for video input (Gemini, Kimi, MiniMax M3) and the hard-vs-transient billing-quota classifier."
+---
+
 # Provider system & video input
 
 Window observed: 2026-06-02 → 2026-06-03 (after the video-input commit `bd5d60b`).

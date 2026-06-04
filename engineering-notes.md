@@ -1,3 +1,8 @@
+---
+title: "ggcoder Engineering Notes — Ken Kai's Velocity, Prompting Principles, Churn Pattern"
+description: "How Ken Kai actually ships ggcoder: ~75 commits in 10 days, prompting principles from the Skool community video, things added then removed (dynamic repo map), and whether to depend on the project."
+---
+
 # Engineering notes — Ken Kai's style + the gg-framework operating pattern
 
 Observations on the engineering pattern behind gg-framework, not the code itself. Useful if you're deciding whether to depend on ggcoder, fork it, or just observe.

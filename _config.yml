@@ -1,0 +1,40 @@
+title: ggcoder Deep Dive
+description: >-
+  Independent investigation notes on KenKaiii/gg-framework (ggcoder) —
+  architecture, LLM providers, video input, OAuth subscription auth, and a
+  three-way comparison with openabdev/openab and coleam00/Archon.
+
+theme: jekyll-theme-cayman
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  hard_wrap: false
+
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+url: https://joseph19820124.github.io
+baseurl: /ggcoder-deep-dive
+
+author:
+  name: Joseph Chen
+  url: https://github.com/Joseph19820124
+
+# SEO + social
+twitter:
+  card: summary_large_image
+social:
+  name: Joseph Chen
+  links:
+    - https://github.com/Joseph19820124
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+
+include:
+  - _includes

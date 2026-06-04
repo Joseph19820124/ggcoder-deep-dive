@@ -1,3 +1,8 @@
+---
+title: "ggcoder vs Pi vs openab-agent — Coding Agent Comparison"
+description: "Three coding-agent projects compared: ggcoder (batteries-included), Pi (extension-first), openab-agent (ACP fleet worker). Footprint table, feature matrix, and Pi handoff vs Claude Code Task analysis."
+---
+
 # ggcoder vs Pi vs openab-agent
 
 Three coding-agent projects that share design DNA but serve fundamentally different customers.

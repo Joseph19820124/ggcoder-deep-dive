@@ -1,3 +1,8 @@
+---
+title: "Archon vs openab vs gg-framework — Three-Project Deep Comparison (2026-06)"
+description: "Three-layer AI-coding stack compared: Archon (workflow engine, process layer), openab (ACP transport + Discord bridge), gg-framework (agent layer). Maintainership models, sprint themes, response to Claude Code Workflows, six-month staying-power scoring."
+---
+
 # Archon vs openab vs gg-framework — three-project comparison
 
 Observation window: 2026-06-04. Sources: public GitHub APIs (commits, PRs, issues,
