@@ -47,7 +47,7 @@ ggcoder is one of the most actively-developed open-source coding agents — aver
 | **[architecture.md](./architecture.md)** | The 14-package monorepo, recent UI re-architecture, the Goal system, tool surface, session model |
 | **[providers.md](./providers.md)** | 9 LLM providers, video input wire format per provider, hard/transient quota classification, MiniMax-on-Anthropic-transport curiosity |
 | **[vs-pi-vs-openab-agent.md](./vs-pi-vs-openab-agent.md)** | Positioning comparison: extension-first (Pi) vs batteries-included (ggcoder) vs ACP-fleet-worker (openab-agent). Includes footprint table and use-case matrix |
-| **[comparison-3-projects.md](./comparison-3-projects.md)** | Wider three-project comparison adding the process layer: Archon (workflow engine) vs openab (ACP transport + Discord bridge) vs gg-framework. Maintainership models, sprint themes, response to Claude Code Workflows, staying-power scoring |
+| **[comparison-3-projects.md](./comparison-3-projects.md)** | Wider three-project comparison adding the process layer: Archon (workflow engine) vs openab (ACAS multi-agent protocol + multi-platform chat gateway + AWS-native control plane) vs gg-framework. Maintainership models, sprint themes, response to Claude Code Workflows, Devin Desktop ACP risk, staying-power scoring |
 | **[engineering-notes.md](./engineering-notes.md)** | Ken Kai's commit velocity, prompting principles from Skool community video (2026-05-25), what got added and removed in the last 30 days, things to watch for |
 
 ## How to read these notes
@@ -79,7 +79,7 @@ These notes are released under MIT for reuse. The gg-framework code referenced t
 
 ## Related projects
 
-- [openabdev/openab](https://github.com/openabdev/openab) — minimalist Rust ACP server / fleet-worker counterpart
+- [openabdev/openab](https://github.com/openabdev/openab) — Rust three-sub-layer stack: ACAS (multi-agent cognitive protocol, draft) + multi-platform chat gateway (Discord / LINE / Telegram / WeCom / Google Chat / Teams) + AWS-native control plane (`oabctl` for ECS Fargate, Helm chart for k8s). See [comparison-3-projects.md](./comparison-3-projects.md) for the deep read.
 - [earendil-works/pi](https://github.com/earendil-works/pi) — extension-first TypeScript coding agent (design influence on openab-agent)
 - [Joseph19820124/openab-http-agent-rfc](https://github.com/Joseph19820124/openab-http-agent-rfc) — my own RFC on adding HTTP transport to OpenAB
 - [Joseph19820124/codex-oauth-client](https://github.com/Joseph19820124/codex-oauth-client) — my TypeScript port of ChatGPT subscription OAuth (parallel work to ggcoder's `auth.rs` in openab-agent)
